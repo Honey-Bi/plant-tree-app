@@ -9,6 +9,12 @@ class Branches {
   endY: number;
   color = '#000';
   lineWidth:number;
+  frame = 10;
+  cntFrame = 0;
+  gapX: number;
+  gapY: number;
+  currentX: number;
+  currentY: number;
   constructor(
     startX: number, 
     startY: number, 
@@ -20,14 +26,28 @@ class Branches {
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
-    this.color = '#000000';
+    this.color = '#000';
     this.lineWidth = lineWidth;
+
+    this.gapX = (this.endX - this.startX) / this.frame;
+    this.gapY = (this.endY - this.startY) / this.frame;
+
+    this.currentX = this.startX;
+    this.currentY = this.startY;
   }
   draw(ctx:CanvasRenderingContext2D) {
+
+    if (this.cntFrame === this.frame) return true;
+
     ctx.beginPath();
 
     ctx.moveTo(this.startX, this.startY); // 선의 시작 위치 지정
-    ctx.lineTo(this.endX, this.endY); // 선의 끝 위치 지정
+
+    this.currentX += this.gapX; 
+    this.currentY += this.gapY;
+
+
+    ctx.lineTo(this.currentX, this.currentY) // 선의 끝 위치 지정
 
     if (this.lineWidth < 3) {
       ctx.lineWidth = 0.5;
@@ -44,14 +64,18 @@ class Branches {
 
     ctx.stroke();
     ctx.closePath();
+
+    this.cntFrame++;
+    return false;
   }
 }
 
 class Tree {
   position: {x:number; y:number};
-  branches:Array<Branches> = [];
+  branches:Array<Array<Branches>> = [];
   ctx: CanvasRenderingContext2D;
   depth = 11;
+  cntDepth = 0;
   animation:any = null; 
   constructor(
     x:number, y:number,
@@ -63,6 +87,9 @@ class Tree {
     this.init();
   }
   init() {
+    for (let i = 0; i < this.depth; i++) {
+      this.branches.push([]);
+    }
     this.createBranch(this.position.x, this.position.y , -90, 0);
     this.draw(this.ctx);
   }
@@ -75,7 +102,8 @@ class Tree {
     const endX = startX + this.cos(angle) * len * (this.depth - depth);
     const endY = startY + this.sin(angle) * len * (this.depth - depth);
 
-    this.branches.push(
+
+    this.branches[depth].push(
       new Branches(startX, startY, endX, endY, this.depth - depth)
     );
 
@@ -84,11 +112,27 @@ class Tree {
   }
 
   draw(ctx:CanvasRenderingContext2D) {
-    for (let i = 0; i < this.branches.length; i++) {
-      this.branches[i].draw(ctx);
+    
+    let requestId: number;
+    const RequestAnimation = (ctx: CanvasRenderingContext2D) => () => {
+      for (let i = this.cntDepth; i < this.branches.length; i++) {
+        let pass = true;
+  
+        for (let j = 0; j < this.branches[i].length; j++) {
+          pass = this.branches[i][j].draw(this.ctx);
+        }
+  
+        if (!pass) break;
+        this.cntDepth++;
+      }
+      requestId = window.requestAnimationFrame(RequestAnimation(ctx));
+    }
+    requestId = window.requestAnimationFrame(RequestAnimation(ctx));
+    if (this.cntDepth === this.depth) {
+      window.cancelAnimationFrame(requestId);
     }
   }
-
+  
   cos(angle:number) {
     return Math.cos(this.degToRad(angle));
   }
@@ -98,8 +142,7 @@ class Tree {
   degToRad(angle:number) {
     return (angle / 180.0) * Math.PI;
   }
-  
-  // random 함수 추가
+
   random(min:number, max:number) {
     return min + Math.floor(Math.random() * (max - min + 1));
   }
