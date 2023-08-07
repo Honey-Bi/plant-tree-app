@@ -1,20 +1,19 @@
 import { BaseSyntheticEvent, useCallback, useEffect, useRef, useState } from "react";
 import './App.css';
 
-
+type Position = {
+  x: number,
+  y: number
+}
 class Branches {
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
-  color = '#000';
-  lineWidth:number;
-  frame = 10;
+  start: Position; // 시작 위치
+  end: Position; // 종료 위치
+  color = '#000'; // 선 색상
+  lineWidth:number; // 선 굵기
+  frame = 10; // 이동 시간
   cntFrame = 0;
-  gapX: number;
-  gapY: number;
-  currentX: number;
-  currentY: number;
+  gap: Position; // 이동 거리 
+  current: Position; // 현재 위치
   constructor(
     startX: number, 
     startY: number, 
@@ -22,32 +21,31 @@ class Branches {
     endY: number,
     lineWidth: number
   ) {
-    this.startX = startX;
-    this.startY = startY;
-    this.endX = endX;
-    this.endY = endY;
+    this.start = {x: startX, y: startY};
+    this.end = {x: endX, y: endY};
     this.color = '#000';
     this.lineWidth = lineWidth;
-
-    this.gapX = (this.endX - this.startX) / this.frame;
-    this.gapY = (this.endY - this.startY) / this.frame;
-
-    this.currentX = this.startX;
-    this.currentY = this.startY;
+    this.gap = {
+      x: (this.end.x - this.start.x) / this.frame,  // 좌우 이동거리를 frame만큼 쪼갬
+      y: (this.end.y - this.start.y) / this.frame   // 상하 이동거리를 frame만큼 쪼갬
+    }
+    this.current = {
+      x: this.start.x,
+      y: this.start.y
+    }
   }
   draw(ctx:CanvasRenderingContext2D) {
 
     if (this.cntFrame === this.frame) return true;
 
-    ctx.beginPath();
+    ctx.beginPath(); // ctx 시작
 
-    ctx.moveTo(this.startX, this.startY); // 선의 시작 위치 지정
+    ctx.moveTo(this.start.x, this.start.y); // 시작위치
 
-    this.currentX += this.gapX; 
-    this.currentY += this.gapY;
+    this.current.x += this.gap.x; // 현재위치를  gap 만큼 추가
+    this.current.y += this.gap.y;
 
-
-    ctx.lineTo(this.currentX, this.currentY) // 선의 끝 위치 지정
+    ctx.lineTo(this.current.x, this.current.y) // 선 이동
 
     if (this.lineWidth < 3) {
       ctx.lineWidth = 0.5;
@@ -71,7 +69,7 @@ class Branches {
 }
 
 class Tree {
-  position: {x:number; y:number};
+  position: Position;
   branches:Array<Array<Branches>> = [];
   ctx: CanvasRenderingContext2D;
   depth = 11;
@@ -133,17 +131,16 @@ class Tree {
     }
   }
   
-  cos(angle:number) {
+  cos(angle:number) { // 코사인 각도 얻기
     return Math.cos(this.degToRad(angle));
   }
-  sin(angle:number) {
+  sin(angle:number) { // 사인 각도 얻기
     return Math.sin(this.degToRad(angle));
   }
-  degToRad(angle:number) {
+  degToRad(angle:number) { // 기울기 얻기
     return (angle / 180.0) * Math.PI;
   }
-
-  random(min:number, max:number) {
+  random(min:number, max:number) { // 랜덤
     return min + Math.floor(Math.random() * (max - min + 1));
   }
 }
@@ -176,29 +173,27 @@ export default function App() {
     if (canvasRef.current) {
       const canvas:HTMLCanvasElement = canvasRef.current;
       const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-      handleResize();
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       setCtx(context);
       trees.push(new Tree(window.innerWidth/2, window.innerHeight, context));
-      console.log(trees);
     }
-  }, [canvasRef, handleResize]);
+    console.log(trees);
+  }, [canvasRef]);
 
   const handleClick = (e:BaseSyntheticEvent) => { // 화면 click 이벤트
-    let pageX;
+    let pageX = 0;
     if (ctx === null) {
       return;
     }
     if (e.type === "touchstart") {
       const event = e.nativeEvent as TouchEvent;
       pageX = event.changedTouches[0].pageX;
-      trees.push(new Tree(pageX, window.innerHeight, ctx));
     } else if (e.type === "click") {
       const event = e.nativeEvent as MouseEvent;
       pageX = event.pageX;
-      trees.push(new Tree(pageX, window.innerHeight, ctx));
     }
+    trees.push(new Tree(pageX, window.innerHeight, ctx));
   }
   
   useEffect(() => { // 화면 resize 처리
