@@ -8,7 +8,7 @@ type Position = {
 class Branches {
   start: Position; // 시작 위치
   end: Position; // 종료 위치
-  color = '#000'; // 선 색상
+  color = '#fff'; // 선 색상
   lineWidth:number; // 선 굵기
   frame = 10; // 이동 시간
   cntFrame = 0;
@@ -23,7 +23,6 @@ class Branches {
   ) {
     this.start = {x: startX, y: startY};
     this.end = {x: endX, y: endY};
-    this.color = '#000';
     this.lineWidth = lineWidth;
     this.gap = {
       x: (this.end.x - this.start.x) / this.frame,  // 좌우 이동거리를 frame만큼 쪼갬
