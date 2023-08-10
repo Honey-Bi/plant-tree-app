@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/plant-tree-app/static/css/main.69067fb9.css",
+    "main.js": "/plant-tree-app/static/js/main.8ee6560f.js",
+    "index.html": "/plant-tree-app/index.html",
+    "main.69067fb9.css.map": "/plant-tree-app/static/css/main.69067fb9.css.map",
+    "main.8ee6560f.js.map": "/plant-tree-app/static/js/main.8ee6560f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.69067fb9.css",
+    "static/js/main.8ee6560f.js"
+  ]
+}
