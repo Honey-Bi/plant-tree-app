@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/plant-tree-app/static/css/main.69067fb9.css",
-    "main.js": "/plant-tree-app/static/js/main.8ee6560f.js",
+    "main.js": "/plant-tree-app/static/js/main.006118cf.js",
     "index.html": "/plant-tree-app/index.html",
     "main.69067fb9.css.map": "/plant-tree-app/static/css/main.69067fb9.css.map",
-    "main.8ee6560f.js.map": "/plant-tree-app/static/js/main.8ee6560f.js.map"
+    "main.006118cf.js.map": "/plant-tree-app/static/js/main.006118cf.js.map"
   },
   "entrypoints": [
     "static/css/main.69067fb9.css",
-    "static/js/main.8ee6560f.js"
+    "static/js/main.006118cf.js"
   ]
 }
